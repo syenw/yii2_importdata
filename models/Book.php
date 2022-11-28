@@ -8,11 +8,12 @@ use Yii;
  * This is the model class for table "books".
  *
  * @property int $id
- * @property string|null $category
  * @property string|null $code
+ * @property string|null $category
  * @property string|null $title
  * @property string|null $author
  * @property string|null $publisher
+ * @property string|null $isbn
  * @property string|null $year
  * @property string|null $size
  * @property string|null $page
@@ -34,9 +35,9 @@ class Book extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['code', 'title', 'author'], 'string'],
+            [['category', 'title', 'author', 'publisher'], 'string'],
             [['price'], 'integer'],
-            [['category', 'publisher', 'year', 'size', 'page'], 'string', 'max' => 255],
+            [['code', 'isbn', 'year', 'size', 'page'], 'string', 'max' => 255],
         ];
     }
 
@@ -47,11 +48,12 @@ class Book extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'category' => 'Category',
             'code' => 'Code',
+            'category' => 'Category',
             'title' => 'Title',
             'author' => 'Author',
             'publisher' => 'Publisher',
+            'isbn' => 'Isbn',
             'year' => 'Year',
             'size' => 'Size',
             'page' => 'Page',

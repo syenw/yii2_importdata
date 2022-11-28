@@ -18,7 +18,7 @@ class BookSearch extends Book
     {
         return [
             [['id', 'price'], 'integer'],
-            [['category', 'code', 'title', 'author', 'publisher', 'year', 'size', 'page'], 'safe'],
+            [['code', 'category', 'title', 'author', 'publisher', 'isbn', 'year', 'size', 'page'], 'safe'],
         ];
     }
 
@@ -40,7 +40,7 @@ class BookSearch extends Book
      */
     public function search($params)
     {
-        $query = Book::find()->orderBy('title', 'ASC');
+        $query = Book::find();
 
         // add conditions that should always apply here
 
@@ -62,11 +62,12 @@ class BookSearch extends Book
             'price' => $this->price,
         ]);
 
-        $query->andFilterWhere(['like', 'category', $this->category])
-            ->andFilterWhere(['like', 'code', $this->code])
+        $query->andFilterWhere(['like', 'code', $this->code])
+            ->andFilterWhere(['like', 'category', $this->category])
             ->andFilterWhere(['like', 'title', $this->title])
             ->andFilterWhere(['like', 'author', $this->author])
             ->andFilterWhere(['like', 'publisher', $this->publisher])
+            ->andFilterWhere(['like', 'isbn', $this->isbn])
             ->andFilterWhere(['like', 'year', $this->year])
             ->andFilterWhere(['like', 'size', $this->size])
             ->andFilterWhere(['like', 'page', $this->page]);

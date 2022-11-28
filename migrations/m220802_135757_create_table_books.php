@@ -30,11 +30,12 @@ class m220802_135757_create_table_books extends Migration
     {
         $this->createTable('books', [
             'id' => $this->primaryKey(),
+            'code' => $this->string(),
             'category' => $this->string(),
-            'code' => $this->text(),
             'title' => $this->text(),
             'author' => $this->text(),
-            'publisher' => $this->string(),
+            'publisher' => $this->text(),
+            'isbn' => $this->string(),
             'year' => $this->string(),
             'size' => $this->string(),
             'page' => $this->string(),

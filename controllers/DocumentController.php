@@ -73,42 +73,71 @@ class DocumentController extends Controller
      */
     public function actionCreate()
     {
+        // 
         $model = new Document();
         $model2 = new Book();
 
+        // 
+        $folder = Yii::$app->basePath . DIRECTORY_SEPARATOR . 'web' . DIRECTORY_SEPARATOR . 'uploads';
+
+        // 
         if ($this->request->isPost) {
+            // 
             $file = UploadedFile::getInstance($model, 'name');
 
+            // 
+            if (!file_exists($folder)) {
+                mkdir('uploads', 0777, true);
+            }
+
             try {
+                // 
                 if ($model->validate()) {
+                    // 
                     $file->saveAs('uploads/'.$file->name);
+                    
+                    // 
                     $model->name = $file->name;
+                    
+                    // 
                     $model->size = $file->size;
 
                     if ($model->save()) {
+                        // 
                         $reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
+                        
+                        // 
                         $objPHPExcel = $reader->load("uploads/$file->name");
 
+                        // 
                         $sheet = $objPHPExcel->getSheet(0);
+                        
+                        // 
                         $highestRow = $sheet->getHighestRow();
+                        
+                        // 
                         $highestColumn = $sheet->getHighestColumn();
 
-                        for ($row = 1; $row < $highestRow; ++$row) { 
+                        
+                        // 
+                        for ($row = 1; $row <= $highestRow; ++$row) { 
+                            // 
                             $rowData = $sheet ->rangeToArray('A'.$row. ':' .$highestColumn.$row, NULL, TRUE, FALSE);
+
+                            // 
                             $data = array(
-                                'category' => $rowData[0][0],
-                                'title' => $rowData[0][1],
-                                // 'author' => iconv('UTF-8', 'utf-8//IGNORE', $rowData[0][2]),
-                                'author' => $rowData[0][2],
-                                'publisher' => $rowData[0][3],
-                                'code' => $rowData[0][4],
-                                'year' => $rowData[0][5],
-                                'size' => $rowData[0][6],
-                                'page' => $rowData[0][7],
-                                'price' => $rowData[0][8],
+                                'code' => $rowData[0][0],
+                                'category' => $rowData[0][1],
+                                'isbn' => $rowData[0][2],
+                                'title' => $rowData[0][3],
+                                'author' => $rowData[0][4],
+                                'publisher' => $rowData[0][5],
+                                'year' => $rowData[0][6],
                             );
+
                             Yii::$app->db->createCommand()->insert('books', $data)->execute();
-                        }   
+                        } 
+                        return $this->redirect(['view', 'id' => $model->id]);
                     }
                     else {
                         throw new Exception("Error Processing Request");
@@ -136,9 +165,68 @@ class DocumentController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
+        $model2 = new Book();
 
-        if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($this->request->isPost) {
+            // 
+            $file = UploadedFile::getInstance($model, 'name');
+            
+            try {
+                // 
+                if ($model->validate()) {
+                    // 
+                    $file->saveAs('uploads/'.$file->name);
+                    
+                    // 
+                    $model->name = $file->name;
+                    
+                    // 
+                    $model->size = $file->size;
+
+                    if ($model->save()) {
+                        // 
+                        $reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
+                        
+                        // 
+                        $objPHPExcel = $reader->load("uploads/$file->name");
+
+                        // 
+                        $sheet = $objPHPExcel->getSheet(0);
+                        
+                        // 
+                        $highestRow = $sheet->getHighestRow();
+                        
+                        // 
+                        $highestColumn = $sheet->getHighestColumn();
+
+                        
+                        // 
+                        for ($row = 1; $row <= $highestRow; ++$row) { 
+                            // 
+                            $rowData = $sheet ->rangeToArray('A'.$row. ':' .$highestColumn.$row, NULL, TRUE, FALSE);
+
+                            // 
+                            $data = array(
+                                'code' => $rowData[0][0],
+                                'category' => $rowData[0][1],
+                                'isbn' => $rowData[0][2],
+                                'title' => $rowData[0][3],
+                                'author' => $rowData[0][4],
+                                'publisher' => $rowData[0][5],
+                                'year' => $rowData[0][6],
+                            );
+
+                            Yii::$app->db->createCommand()->update('books', $data)->execute();
+                        } 
+                        return $this->redirect(['view', 'id' => $model->id]);
+                    }
+                    else {
+                        throw new Exception("Error Processing Request");
+                    }
+                }
+            } catch (Exception $e) {
+                echo $e->getMessage();   
+            }
         }
 
         return $this->render('update', [
